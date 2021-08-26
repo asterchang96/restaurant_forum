@@ -4,7 +4,6 @@ const bodyParser = require('body-parser')
 const flash = require('connect-flash')
 const session = require('express-session')
 const passport = require('./config/passport')
-const db = require('./models')
 const app = express()
 const port = 3000
 
@@ -27,7 +26,6 @@ app.use((req, res, next) => {
 })
 
 app.listen(port, () => {
-/*   db.sequelize.sync() */
   console.log(`Example app listening at http://localhost:${port}`)
 })
 

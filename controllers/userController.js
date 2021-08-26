@@ -34,7 +34,8 @@ const userController = {
   },
 
   signInPage: (req, res) => {
-    return res.redirect('/signin')
+    /* return res.redirect('/signin') */
+    return res.render('signin')
   },
 
   signIn: (req, res) => {
@@ -45,7 +46,7 @@ const userController = {
   logout: (req, res) => {
     req.flash('success_message', '成功登出！')
     req.logout()
-    return res.redirect('/login')
+    return res.redirect('/signin')
   }
 }
 
