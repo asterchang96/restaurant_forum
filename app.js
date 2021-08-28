@@ -7,7 +7,7 @@ const methodOverride = require('method-override')
 const passport = require('./config/passport')
 
 const app = express()
-const port = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000
 
 // setup handlebars / bodyParser / session / passport /flash / methodOverride / upload
 app.engine('handlebars', handlebars({ defaultLayout : 'main' }))
@@ -30,8 +30,8 @@ app.use((req, res, next) => {
   next()
 })
 
-app.listen(port, () => {
-  console.log(`listening at http://localhost:${port}`)
+app.listen(PORT, () => {
+  console.log(`listening at http://localhost:${PORT}`)
 })
 module.exports = app
 
