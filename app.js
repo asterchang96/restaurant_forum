@@ -9,6 +9,11 @@ const passport = require('./config/passport')
 const app = express()
 const PORT = process.env.PORT || 3000
 
+//加在 Passport 之前
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
+
 // setup handlebars / bodyParser / session / passport /flash / methodOverride / upload
 app.engine('handlebars', handlebars({ defaultLayout : 'main' }))
 app.set('view engine', 'handlebars')
