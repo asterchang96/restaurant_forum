@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 const {
   Model
-} = require('sequelize');
+} = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
-  class Restaurant extends Model {
+  class Category extends Model {
     static associate (models) {
       Category.hasMany(models.Restaurant)
     }
