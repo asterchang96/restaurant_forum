@@ -17,12 +17,16 @@ const adminController = {
   },
 
   creatRestaurant: (req, res) => {
-    return res.render('admin/create')
+    Category.findAll({
+      raw: true,
+      nest: true,
+    }).then(categories => {
+      return res.render('admin/create', { categories })
+    })
   },
 
   postRestaurant: (req, res) => {
-    console.log('確認file', req)
-    const { name, tel, address, opening_hours, description } = req.body
+    const { name, tel, address, opening_hours, description, categoryId } = req.body
     const { file } = req //const file = req.file
     if(!name){
       req.flash('error_messages', '名字不存在！')
@@ -38,6 +42,7 @@ const adminController = {
           opening_hours: opening_hours,
           description: description,
           image: file ? img.data.link : null,
+          CategoryId: categoryId
         })
           .then((restaurant) => {
             req.flash('success_messages', '餐廳已成功建立！')
@@ -51,7 +56,8 @@ const adminController = {
         address: req.body.address,
         opening_hours: req.body.opening_hours,
         description: req.body.description,
-        image: null
+        image: null,
+        CategoryId: categoryId
     }).then((restaurant) =>{
       req.flash('success_messages', '餐廳已成功建立！')
       return res.redirect('/admin/restaurants')
@@ -68,14 +74,22 @@ const adminController = {
   },
 
   editRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id,{ raw:true }).then(restaurant => {
-      return res.render('admin/create', { restaurant:restaurant })
+    Category.findAll({
+      raw: true,
+      nest: true
+    }).then(categories => {
+      return Restaurant.findByPk(req.params.id).then(restaurant => {
+        return res.render('admin/create', {
+          categories: categories, 
+          restaurant: restaurant.toJSON()
+        })
+      })
     })
   },
 
 
   putRestaurant: (req, res) => {
-    const { name, tel, address, opening_hours, description } = req.body
+    const { name, tel, address, opening_hours, description, categoryId } = req.body
     const { file } = req
 
     if(!name){
@@ -93,7 +107,8 @@ const adminController = {
               address:address,
               opening_hours: opening_hours,
               description: description,
-              image: file ? img.data.link : restaurant.image //更新或保留原本值
+              image: file ? img.data.link : restaurant.image, //更新或保留原本值
+              CategoryId: categoryId
               })
               .then((restaurant) => {
                 req.flash('success_messages', "餐廳已成功修改！")
@@ -110,7 +125,8 @@ const adminController = {
             address:address,
             opening_hours: opening_hours,
             description: description,
-            image: restaurant.image
+            image: restaurant.image,
+            CategoryId: categoryId
           })
           .then((restaurant) => {
             req.flash('success_messages', "餐廳已成功修改！")
