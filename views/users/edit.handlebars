@@ -5,11 +5,21 @@
   </div>
 
     <div class="form-group">
-      <label for="image">Image</label>
-      <input type="file" class="form-control-file" id="image" name="image">
+      <p>Image</p>
+      <div class=""><img src="{{user.image}}" alt="user" class="rounded-circle" width="100" id="imageSubmitCheck"/></div>
+      <input type="file" accept="image/*" class="form-control-file" id="image" name="image">
     </div>
 
     <button type="submit" class="btn btn-primary">Submit</button>
     <a href="./" type="button" class="btn btn-primary">Back</a>
 
   </form>
+
+<script type="text/javascript">
+  image.onchange = evt => {
+    const [file] = image.files
+    if (file) {
+      imageSubmitCheck.src = URL.createObjectURL(file)
+    }
+  }
+</script>

@@ -62,8 +62,6 @@ const userController = {
   },
 
   putUser: (req, res) => {
-    console.log('req.body', req.body)
-    console.log('req.file', req.file)
     const { file } = req
     
     if(file){
