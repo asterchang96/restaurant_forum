@@ -20,6 +20,14 @@ module.exports = (app, passport) => {
       return res.redirect('/')
     }
   }
+  const userEditProfile = (req, res, next) => {
+    if((helpers.getUser(req).id).toString() === req.params.id) {return next()}
+    else{
+      req.flash('error_messages','不可編輯其他用戶資料！')
+      return res.redirect(`/users/${req.user.id}`)
+    }
+    
+  }
 
   
   app.get('/', authenticated, (req, res) => res.redirect('/restaurants'))
@@ -48,7 +56,7 @@ module.exports = (app, passport) => {
   app.put('/admin/users/:id/toggleAdmin', authenticatedAdmin, adminController.toggleAdmin)
 
   app.get('/users/:id', authenticated, userController.getUser)
-  app.get('/users/:id/edit', authenticated, userController.editUser)
+  app.get('/users/:id/edit', authenticated, userEditProfile, userController.editUser)
   app.put('/users/:id', authenticated,upload.single('image'),  userController.putUser)
 
 

@@ -63,7 +63,7 @@ const userController = {
 
   putUser: (req, res) => {
     const { file } = req
-    
+
     if(file){
       imgur.setClientID(IMGUR_CLIENT_ID);
       imgur.upload(file.path, (err, img) => {

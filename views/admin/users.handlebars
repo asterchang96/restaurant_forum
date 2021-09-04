@@ -28,7 +28,7 @@
       <td>{{this.role}}</td>
       <td>
         <form action="/admin/users/{{this.id}}/toggleAdmin?_method=PUT" method="POST" style="display: inline;">
-          <button type="submit" class="btn btn-link">set as {{#is this.role 'admin'}}user{{else}}admin{{/is}}</button>
+          <button type="submit" class="btn btn-link">set as {{#ifCond this.role 'admin'}}user{{else}}admin{{/ifCond}}</button>
         </form>
       </td>
     </tr>
