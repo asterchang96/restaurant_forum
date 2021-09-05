@@ -56,11 +56,8 @@ const userController = {
     Promise.all([Comment.findAll({raw: true, nest: true, include: [Restaurant], where:{UserId: req.user.id}}), User.findByPk(req.user.id)])
     .then(result => {
       const [comment, user] = result
-      console.log(comment)
-
       return res.render('users/profile', { user: user.toJSON(), comment})
     })
-    
   },
 
   editUser: (req, res) => {
