@@ -9,6 +9,7 @@ const Followship = db.Followship
 
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
+const favoriteRestaurantCount = 10
 
 const userController = {
   signUpPage: (req, res) => {
@@ -199,8 +200,25 @@ const userController = {
             return res.redirect('back')
           })
       })
-  }
+  },
 
+  getTopRestaurants: (req, res) => {
+    return Restaurant.findAll({
+      include: [
+        { model: User, as: 'FavoritedUsers' }
+      ]
+    }).then(restaurants  => {
+        restaurants  = restaurants .map(restaurant => ({
+        ...restaurant.dataValues,
+        description: restaurant.description.slice(0, 100),
+        voteCount: restaurant.FavoritedUsers.length,
+        isFavorited: restaurant.FavoritedUsers.map(d => d.id).includes(req.user.id)
+      }))
+      restaurants = restaurants.sort((a, b) => b.voteCount - a.voteCount).slice(0, favoriteRestaurantCount)
+      console.log(restaurants)
+      return res.render('topRestaurants', { restaurants: restaurants })
+    })
+  }
 }
 
 module.exports = userController
