@@ -58,10 +58,43 @@ const userController = {
   },
 
   getUser: (req, res) => {
-    Promise.all([Comment.findAll({raw: true, nest: true, include: [Restaurant], where:{UserId: req.user.id}}), User.findByPk(req.user.id)])
-    .then(result => {
-      const [comment, user] = result
-      return res.render('users/profile', { user: user.toJSON(), comment})
+    Promise.all([
+      Comment.findAll({
+        raw: true, 
+        nest: true, 
+        include: [Restaurant], 
+        where:{UserId: req.user.id}
+      }), 
+      User.findByPk(req.user.id,{
+        include: [
+          { model: User, as: 'Followers', attributes: ['image', 'id'] },
+          { model: User, as: 'Followings', attributes: ['image', 'id'] },
+          { model: Restaurant, as: 'FavoritedRestaurants', attributes: ['image', 'id'] },
+          { model: Comment, include: [Restaurant], attributes: ['RestaurantId', 'id']}
+        ]
+      })
+    ])
+    .then(([comment, user]) => {
+      let userCommentResult = []
+      /*統計RestaurantId出現次數，可以在滑鼠觸碰，顯示該餐廳瀏覽數*/
+      user.Comments.forEach((item) => {
+
+        let userComment = {
+          'id': item.Restaurant.id,
+          'URL': item.Restaurant.image
+        }
+
+        let commentRepeatOrNot = userCommentResult.find(i =>{
+          if(i.id === item.Restaurant.id)  i.count += 1
+          return i.id === item.Restaurant.id
+        })
+        if(!commentRepeatOrNot){
+          userComment.count = 1
+          userCommentResult.push(userComment)
+        }
+
+      })
+      return res.render('users/profile', { user: user.toJSON(), comment, userCommentResult})
     })
   },
 
@@ -208,7 +241,7 @@ const userController = {
         { model: User, as: 'FavoritedUsers' }
       ]
     }).then(restaurants  => {
-        restaurants  = restaurants .map(restaurant => ({
+        restaurants  = restaurants.map(restaurant => ({
         ...restaurant.dataValues,
         description: restaurant.description.slice(0, 100),
         voteCount: restaurant.FavoritedUsers.length,
