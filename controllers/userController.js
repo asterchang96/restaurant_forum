@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs')
+const helpers = require('../_helpers')
 const db = require('../models')
 const User = db.User
 const Comment = db.Comment
@@ -18,6 +19,7 @@ const userController = {
 
   signUp: (req, res) => {
     const { name, email, password, passwordCheck } = req.body
+    const image = 'https://i.imgur.com/ygO5lbd.png'
     //error message
     if(password !== passwordCheck) {
       req.flash('error_messages', '兩次密碼輸入不同！')
@@ -32,6 +34,7 @@ const userController = {
           User.create({
             name: name,
             email: email,
+            image: image,
             password: bcrypt.hashSync(password, bcrypt.genSaltSync(10), null)
           }).then(user => {
             req.flash('success_messages', '成功註冊帳號！')
@@ -58,6 +61,10 @@ const userController = {
   },
 
   getUser: (req, res) => {
+    let loginUser = {}
+    loginUser.id = Number(req.user.id)
+    loginUser.email = req.user.email
+
     Promise.all([
       Comment.findAll({
         raw: true, 
@@ -65,7 +72,7 @@ const userController = {
         include: [Restaurant], 
         where:{UserId: req.user.id}
       }), 
-      User.findByPk(req.user.id,{
+      User.findByPk(req.params.id,{
         include: [
           { model: User, as: 'Followers', attributes: ['image', 'id'] },
           { model: User, as: 'Followings', attributes: ['image', 'id'] },
@@ -76,26 +83,25 @@ const userController = {
     ])
     .then(([comment, user]) => {
       let userCommentResult = []
-      /*統計RestaurantId出現次數，可以在滑鼠觸碰，顯示該餐廳瀏覽數*/
-      user.Comments.forEach((item) => {
-
-        let userComment = {
-          'id': item.Restaurant.id,
-          'URL': item.Restaurant.image
-        }
-
-        let commentRepeatOrNot = userCommentResult.find(i =>{
-          if(i.id === item.Restaurant.id)  i.count += 1
-          return i.id === item.Restaurant.id
-        })
-        if(!commentRepeatOrNot){
-          userComment.count = 1
-          userCommentResult.push(userComment)
-        }
-
-      })
-      return res.render('users/profile', { user: user.toJSON(), comment, userCommentResult})
+      if(comment.length){
+        user.Comments.forEach((item) => {
+          let userComment = {
+            'id': item.Restaurant.id,
+            'URL': item.Restaurant.image
+          }
+          let commentRepeatOrNot = userCommentResult.find(i =>{
+            if(i.id === item.Restaurant.id)  i.count += 1
+            return i.id === item.Restaurant.id
+          })
+          if(!commentRepeatOrNot){
+            userComment.count = 1
+            userCommentResult.push(userComment)
+          }
+        })        
+      }
+      return res.render('users/profile', { userProfile: user.toJSON(), comment, userCommentResult, loginUser})
     })
+    .catch((error) => {console.log(error)})
   },
 
   editUser: (req, res) => {
@@ -104,20 +110,20 @@ const userController = {
 
   putUser: (req, res) => {
     const { file } = req
-
+    const id = req.params.id
     if(file){
       imgur.setClientID(IMGUR_CLIENT_ID);
       imgur.upload(file.path, (err, img) => {
-        return User.findByPk(req.params.id)
+        return User.findByPk(id)
           .then((user) => {
             user.update({
-              name:req.body.name,
+              name: req.body.name,
               image: file ? img.data.link : user.image,
             })
           })
           .then((user) => {
             req.flash('success_messages', "已成功修改！")
-            res.redirect('/users/profile')
+            res.redirect(`/users/${id}`)
           })
       })
     }
@@ -125,13 +131,13 @@ const userController = {
       return User.findByPk(req.params.id)
         .then((user) => {
           user.update({
-            name:req.body.name,
+            name: req.body.name,
             image: user.image,
           })
         })
         .then((user) => {
           req.flash('success_messages', "已成功修改！")
-          res.redirect('/users/profile')
+          res.redirect(`/users/${id}`)
         })      
     }
   },
