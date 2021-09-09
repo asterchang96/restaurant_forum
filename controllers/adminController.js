@@ -24,43 +24,16 @@ const adminController = {
   },
 
   postRestaurant: (req, res) => {
-    const { name, tel, address, opening_hours, description, categoryId } = req.body
-    const { file } = req //const file = req.file
-    if(!name){
-      req.flash('error_messages', '名字不存在！')
-      return res.redirect('back')
-    }
-    if(file){
-      imgur.setClientID(IMGUR_CLIENT_ID)
-      imgur.upload(file.path, (err, img) => {
-        return Restaurant.create({ 
-          name: name,
-          tel: tel,
-          address: address,
-          opening_hours: opening_hours,
-          description: description,
-          image: file ? img.data.link : null,
-          CategoryId: categoryId
-        })
-          .then((restaurant) => {
-            req.flash('success_messages', '餐廳已成功建立！')
-            res.redirect('/admin/restaurants')
-          })
-      })
-    }else{
-      return Restaurant.create({
-        name: req.body.name,
-        tel: req.body.tel,
-        address: req.body.address,
-        opening_hours: req.body.opening_hours,
-        description: req.body.description,
-        image: null,
-        CategoryId: categoryId
-    }).then((restaurant) =>{
-      req.flash('success_messages', '餐廳已成功建立！')
-      return res.redirect('/admin/restaurants')
+    adminServices.postRestaurant(req, res, (data) => {
+      if(data.status === 'error') {
+        req.flash('error_messages', data.message)
+        return res.redirect('back')
+      }
+      else if(data.status === 'success'){
+        req.flash('success_messages',  data.message)
+        res.redirect('/admin/restaurants')
+      }
     })
-    }
   },
 
   getRestaurant: (req, res) => {
@@ -85,51 +58,13 @@ const adminController = {
 
 
   putRestaurant: (req, res) => {
-    const { name, tel, address, opening_hours, description, categoryId } = req.body
-    const { file } = req
-
-    if(!name){
-      req.flash('error_messages', "名字不存在！")
-      return res.redirect('back')
-    }
-    if(file){
-      imgur.setClientID(IMGUR_CLIENT_ID);
-      imgur.upload(file.path, (err, img) => {
-        return Restaurant.findByPk(req.params.id)
-          .then((restaurant) => {
-            restaurant.update({
-              name: name,
-              tel:tel,
-              address:address,
-              opening_hours: opening_hours,
-              description: description,
-              image: file ? img.data.link : restaurant.image, //更新或保留原本值
-              CategoryId: categoryId
-              })
-              .then((restaurant) => {
-                req.flash('success_messages', "餐廳已成功修改！")
-                res.redirect('/admin/restaurants')
-              })
-            })          
-      })
-    }else{
-      return Restaurant.findByPk(req.params.id)
-        .then((restaurant) => {
-          restaurant.update({
-            name: name,
-            tel:tel,
-            address:address,
-            opening_hours: opening_hours,
-            description: description,
-            image: restaurant.image,
-            CategoryId: categoryId
-          })
-          .then((restaurant) => {
-            req.flash('success_messages', "餐廳已成功修改！")
-            res.redirect('/admin/restaurants')
-          })
-        }) 
-    }
+    adminServices.putRestaurant(req, res, (data) => {
+      if(data.status === 'error')
+        req.flash('error_messages', data.message)
+      else if(data.status === 'success')
+        req.flash('success_messages', data.message)
+      return res.redirect('/admin/restaurants')
+    })
   },
 
   deleteRestaurant: (req, res) => {

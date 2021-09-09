@@ -19,7 +19,17 @@ const adminController = {
     adminServices.deleteRestaurant(req, res, (data) =>{
       return res.json({ status: 'success', message: '' })
     })
-  }
+  },
+  postRestaurant: (req, res) => {
+    adminServices.postRestaurant(req, res, (data) => {
+      return res.json(data)
+    })
+  },
+  putRestaurant: (req, res) => {
+    adminServices.putRestaurant(req, res, (data) => {
+      return res.json(data)
+    })
+  },
 }
 
 module.exports = adminController
