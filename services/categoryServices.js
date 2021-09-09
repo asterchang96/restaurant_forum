@@ -36,6 +36,19 @@ const categoryServices = {
         })
     }
   },
+  putCategory: (req, res, callback) => {
+    if (!req.body.name) {
+      callback({ 'status': 'error', 'message': 'name doesn\'t exist'})
+    } else {
+      return Category.findByPk(req.params.id)
+        .then((category) => {
+          category.update(req.body)
+            .then((category) => {
+              callback({ 'status': 'success', 'message': ''})
+            })
+        })
+    }
+  },
 }
 
 module.exports = categoryServices
