@@ -4,7 +4,7 @@ const User = db.User
 const Category = db.Category
 
 
-const adminController = {
+const adminServices = {
   getRestaurants: (req, res ,callback) => {
     return Restaurant.findAll({ 
       raw: true,
@@ -13,7 +13,14 @@ const adminController = {
     }).then(restaurants =>{
       callback({ restaurants: restaurants})
     })
-  }
+  },
+  getRestaurant: (req, res, callback) => {
+    return Restaurant.findByPk(req.params.id, {
+      include: [Category]
+    }).then(restaurant => {
+      callback({ restaurant: restaurant.toJSON() })
+    })
+  },
 }
 
-module.exports = adminController
+module.exports = adminServices
