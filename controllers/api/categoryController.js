@@ -9,7 +9,12 @@ const categoryController = {
       categoryServices.getCategories(req, res, (data) =>{
         return res.json(data)
       })
-    }
+    },
+  postCategory: (req, res) => {
+    categoryServices.postCategory(req, res, (data) =>{
+        return res.json(data)
+    })
+  },
 }
 
 module.exports = categoryController
